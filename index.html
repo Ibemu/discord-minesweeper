@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <title>マインスイーパー</title>
+        <style type="text/css">
+            input[type="text"]
+            {
+                width: 5em;
+                text-align: right;
+            }
+            table
+            {
+                border-collapse: collapse;
+            }
+            td
+            {
+                width: 1.5em;
+                height: 1.5em;
+                border: 1px solid black;
+                text-align: center;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>Discord用マインスイーパー生成機</h1>
+        幅<input id="width" type="text" value="9" />×高さ<input id="height" type="text" value="9" />
+        地雷<input id="count" type="text" value="10" />個
+        <button onclick="generate()">生成</button>
+        <button onclick="copy()">コピー</button>
+        <br />
+        <textarea id="output" rows="16" cols="100" readonly="readonly" ></textarea>
+        <p id="character-count"></p>
+        <p>Discordは2000文字まで</p>
+        <table id="table"></table>
+        <script type="text/javascript">
+            function getRandomInt(max)
+            {
+                return Math.floor(Math.random() * Math.floor(max));
+            }
+            function generate()
+            {
+                var output = document.getElementById("output");
+                var chcount = document.getElementById("character-count");
+                var table = document.getElementById("table");
+                var width = parseInt(document.getElementById("width").value);
+                var height = parseInt(document.getElementById("height").value);
+                var count = parseInt(document.getElementById("count").value);
+                if(count > (width - 1) * (height - 1))
+                    count = (width - 1) * (height - 1);
+
+                var board = new Array(height);
+                for(var r = 0; r < height; ++r)
+                    board[r] = new Array(width).fill(0);
+                while(table.rows[0]) table.deleteRow(0);
+
+                for(var i = 0; i < count; ++i)
+                {
+                    var placing = true;
+                    while(placing)
+                    {
+                        var r = getRandomInt(height);
+                        var c = getRandomInt(width);
+                        if(board[r][c] >= 0)
+                            placing = false;
+                    }
+                    board[r][c] = -10000;
+                    for(var lr = r - 1; lr <= r + 1; ++lr)
+                    {
+                        if(lr < 0 || height <= lr) continue;
+                        for(var lc = c - 1; lc <= c + 1; ++ lc)
+                        {
+                            if(lc < 0 || width <= lc) continue;
+                            board[lr][lc]++;
+                        }
+                    }
+                }
+                
+                var text = "";
+                for(var r = 0; r < height; ++r)
+                {
+                    var tr = table.insertRow();
+                    for(var c = 0; c < width; ++c)
+                    {
+                        var td = tr.insertCell();
+                        if(board[r][c] < 0)
+                            td.appendChild(document.createTextNode("x"));
+                        else if(board[r][c] > 0)
+                            td.appendChild(document.createTextNode(board[r][c]));
+
+                        switch(board[r][c])
+                        {
+                        case 0:
+                            text += "||:zero:||";
+                            break;
+                        case 1:
+                            text += "||:one:||";
+                            break;
+                        case 2:
+                            text += "||:two:||";
+                            break;
+                        case 3:
+                            text += "||:three:||";
+                            break;
+                        case 4:
+                            text += "||:four:||";
+                            break;
+                        case 5:
+                            text += "||:five:||";
+                            break;
+                        case 6:
+                            text += "||:six:||";
+                            break;
+                        case 7:
+                            text += "||:seven:||";
+                            break;
+                        case 8:
+                            text += "||:eight:||";
+                            break;
+                        default:
+                            text += "||:bomb:||";
+                            break;
+                        }
+                    }
+                    text += "\n";
+                }
+                output.value = text;
+                chcount.innerText = text.length + " 文字";
+            }
+            function copy()
+            {
+                var output = document.getElementById("output");
+                output.selectionStart = 0;
+                output.selectionEnd = output.value.length;
+                output.focus();
+                document.execCommand('copy');
+            }
+        </script>
+    </body>
+</html>
